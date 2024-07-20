@@ -16,7 +16,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <h1 className={styles.title}>Product View</h1>
+        <h1 className={styles.title}>Product List</h1>
         <ProductView />
       </main>
     </>
