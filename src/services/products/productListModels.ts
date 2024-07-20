@@ -13,6 +13,7 @@ export interface Product {
   category: string;
   image: string;
   rating: Rating;
+  active: boolean;
 }
 
 // Define the type for the API response
