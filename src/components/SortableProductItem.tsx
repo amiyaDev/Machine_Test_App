@@ -67,9 +67,9 @@ function SortableProductItem({
       item
       xs={12}
       sm={6}
-      md={4}
+      md={3}
       lg={3}
-      xl={2.4}
+      xl={3}
       style={{
         transform: CSS.Translate.toString(transform),
         transition,

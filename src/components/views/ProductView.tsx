@@ -7,7 +7,7 @@ import {
   Box,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -34,7 +34,8 @@ function ProductView() {
   });
   const [products, setProducts] = useState<Product[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const gridRef = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [columns, setColumns] = useState(1);
 
   useEffect(() => {
     if (data?.data) {
@@ -43,11 +44,26 @@ function ProductView() {
     }
   }, [data]);
 
-  useEffect(() => {
-    if (activeIndex !== null) {
-      gridRef.current[activeIndex]?.focus();
+  const calculateColumns = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const containerWidth = containerRef.current.offsetWidth;
+    let columnCount = 1;
+
+    if (containerWidth >= 1536) {
+      columnCount = 4;
+    } else if (containerWidth >= 1200) {
+      columnCount = 4;
+    } else if (containerWidth >= 960) {
+      columnCount = 4;
+    } else if (containerWidth >= 600) {
+      columnCount = 2;
+    } else if (containerWidth >= 0) {
+      columnCount = 1;
     }
-  }, [activeIndex]);
+
+    setColumns(columnCount);
+  }, []);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (activeIndex === null) return;
@@ -56,10 +72,10 @@ function ProductView() {
 
     switch (event.key) {
       case "ArrowUp":
-        newIndex = activeIndex - 4; // Move up in the grid
+        newIndex = activeIndex - columns; // Move up in the grid
         break;
       case "ArrowDown":
-        newIndex = activeIndex + 4; // Move down in the grid
+        newIndex = activeIndex + columns; // Move down in the grid
         break;
       case "ArrowLeft":
         newIndex = activeIndex - 1; // Move left in the grid
@@ -75,6 +91,15 @@ function ProductView() {
       setActiveIndex(newIndex);
     }
   };
+
+  useEffect(() => {
+    window.addEventListener("resize", calculateColumns);
+    calculateColumns();
+
+    return () => {
+      window.removeEventListener("resize", calculateColumns);
+    };
+  }, [calculateColumns]);
 
   useEffect(() => {
     //@ts-ignore
@@ -93,7 +118,6 @@ function ProductView() {
         (product) => product.id === active.id
       );
       const newIndex = products.findIndex((product) => product.id === over.id);
-      console.log(oldIndex, newIndex, "indexes");
       if (oldIndex !== -1 && newIndex !== -1) {
         const updatedProducts = [...products];
         const temp = updatedProducts[oldIndex];
@@ -109,7 +133,6 @@ function ProductView() {
     const updatedProducts = updateProductActiveStatus(products, id);
     setProducts(updatedProducts);
   };
-  console.log(products, "pro");
   // Create sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -121,7 +144,10 @@ function ProductView() {
 
   if (isLoading) {
     return (
-      <Container sx={{ mt: 4, alignItems: "center", justifyContent: "center" }}>
+      <Container
+        sx={{ mt: 4, alignItems: "center", justifyContent: "center" }}
+        ref={containerRef}
+      >
         <Box
           display="flex"
           justifyContent="center"
