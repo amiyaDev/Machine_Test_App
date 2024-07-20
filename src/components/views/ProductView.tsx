@@ -152,7 +152,7 @@ function ProductView() {
           items={products.map((product) => product.id)}
           strategy={verticalListSortingStrategy}
         >
-          <Grid container spacing={4}>
+          <Grid container spacing={2}>
             {products.map((product, index) => (
               <SortableProductItem
                 product={product}
